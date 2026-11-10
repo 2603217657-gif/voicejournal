@@ -106,7 +106,7 @@
             <p>有时，被听见本身就是一种很好的开始。</p>
             <button class="text-link" id="memory-history-open" type="button">回到我的历史 <span aria-hidden="true">↗</span></button>
           </div>
-          <div class="demo-notice"><span class="notice-icon" aria-hidden="true">i</span><p>文字回复当前为规则演示。语音转写由本机 SenseVoice 模型完成，音频不离开这台电脑；演示登录与历史仅保存在本机。</p></div>
+          <div class="demo-notice"><span class="notice-icon" aria-hidden="true">i</span><p>云端版由配置的大模型回复，发送的对话会交给模型服务商处理；离线版为规则回复。语音能力取决于运行环境，历史仅保存在当前浏览器。</p></div>
         </aside>
       </main>
       <footer class="site-footer"><span>树洞 · 一处留给情绪的空间</span><button type="button" id="footer-privacy">隐私与安全</button></footer>
@@ -148,7 +148,7 @@
       <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
       <p class="eyebrow small-eyebrow">YOUR VOICE, YOUR CHOICE</p>
       <h2 id="privacy-title">隐私与安全</h2>
-      <p>文字回复目前由本机规则生成。录音由本机 SenseVoice 模型（sherpa-onnx）转写，音频不上传；若退回浏览器识别，语音可能由浏览器服务商处理。只有主动配置第三方对话服务后，对话文字才会被转发。</p>
+      <p>离线版使用规则回复，云端版会将发送的对话及近期上下文交给配置的 AI 服务商生成回复。录音由本机 SenseVoice 模型（sherpa-onnx）转写，音频不上传；若退回浏览器识别，语音可能由浏览器服务商处理。只有主动配置第三方对话服务后，对话文字才会被转发。</p>
       <p class="consent-demo-note">会话历史仍保存在当前浏览器，没有云端账号存储或跨设备同步。配置第三方服务前，请确认其数据处理政策；不要在开发演示中输入真实隐私或紧急求助信息。</p>
       <button class="primary-button full-button" id="privacy-close" type="button">知道了</button>
     </dialog>

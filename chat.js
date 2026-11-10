@@ -434,7 +434,7 @@ async function requestAssistantReply(messages, mode) {
   const response = await fetch(SERVICE_CONFIG.chatEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mode, messages: messages.map(({ role, text }) => ({ role, content: text })) }),
+    body: JSON.stringify({ mode, messages: messages.slice(-30).map(({ role, text }) => ({ role, content: text })) }),
   });
   if (!response.ok) throw new Error(await getApiError(response, "AI 回复请求失败"));
   const result = await response.json();
