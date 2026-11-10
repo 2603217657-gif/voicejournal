@@ -24,7 +24,7 @@
   const frame = root.querySelector('.cat-frame');
   const switcher = root.querySelector('.cat-switch');
   let index = 0, timer, active = false, queued = 0, lastClick = null, duration = 240, generation = 0;
-  const sequence = [3, 0, 1, 2, 3];
+  const restingFrame = () => pets[index].frames.length - 1;
   const cache = new Map();
   function preload(pet) {
     if (!cache.has(pet.id)) cache.set(pet.id, Promise.all(pet.frames.map(src => new Promise((resolve, reject) => {
@@ -33,11 +33,11 @@
     return cache.get(pet.id);
   }
   function show(n) { frame.src = pets[index].frames[n]; }
-  function stop() { clearTimeout(timer); active = false; queued = 0; lastClick = null; show(3); }
+  function stop() { clearTimeout(timer); active = false; queued = 0; lastClick = null; show(restingFrame()); }
   async function select(next) {
     stop(); index = next; const version = ++generation;
     duration = pets[index].duration || 240;
-    show(3); touch.disabled = true;
+    show(restingFrame()); touch.disabled = true;
     touch.setAttribute('aria-label', `抚摸${pets[index].name}一次`);
     frame.alt = pets[index].name;
     try { await preload(pets[index]); if (version === generation) touch.disabled = false; }
@@ -45,13 +45,15 @@
   }
   function play() {
     if (!queued || panel.hidden) { active = false; return; }
+    const count = pets[index].frames.length;
+    const sequence = [count - 1, ...pets[index].frames.map((_, i) => i)];
     active = true; queued--; let step = 0; show(sequence[step]);
     function advance() {
       step++; show(sequence[step]);
-      if (step === 4) { active = false; if (queued) play(); }
-      else timer = setTimeout(advance, duration / 4);
+      if (step === count) { active = false; if (queued) play(); }
+      else timer = setTimeout(advance, duration / count);
     }
-    timer = setTimeout(advance, duration / 4);
+    timer = setTimeout(advance, duration / count);
   }
   touch.addEventListener('click', () => {
     if (touch.disabled || panel.hidden) return;
