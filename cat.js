@@ -1,5 +1,6 @@
 (() => {
-  const pets = window.TREEHOLE_PETS || [];
+  const pets = [...(window.TREEHOLE_PETS || [])];
+  try { const saved = JSON.parse(window.localStorage.getItem("treehole-custom-pet-v1")); if (saved?.frames?.length === 4 && saved.frames.every(f => typeof f === "string" && f.startsWith("data:image/png;base64,"))) pets.push(saved); } catch {}
   if (!pets.length) return;
   const root = document.createElement('aside');
   root.className = 'cat-companion';
@@ -14,6 +15,7 @@
       <button class="cat-switch" type="button" aria-label="切换素材" title="切换素材">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14m-4-4 4 4-4 4M20 16H6m4-4-4 4 4 4"/></svg>
       </button>
+      <button class="cat-customize cat-switch" type="button" aria-label="制作自己的猫猫" title="制作自己的猫猫">＋</button>
     </section>`;
   document.body.append(root);
   const toggle = root.querySelector('.yarn-toggle');
@@ -68,5 +70,12 @@
   root.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) close(); });
   window.addEventListener('blur', stop);
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
-  void select(0);
+  root.querySelector('.cat-customize').addEventListener('click', () => { stop(); window.TreeholePetEditor?.open(); });
+  window.TreeholeCompanion = { setCustom(pet) {
+    const previous = pets.findIndex(p => p.id === 'custom');
+    if (previous >= 0) { cache.delete('custom'); pets[previous] = pet; } else pets.push(pet);
+    toggle.hidden = true; panel.hidden = false; toggle.setAttribute('aria-expanded', 'true');
+    void select(pets.findIndex(p => p.id === 'custom'));
+  }};
+  void select(pets.findIndex(p => p.id === 'custom') >= 0 ? pets.findIndex(p => p.id === 'custom') : 0);
 })();

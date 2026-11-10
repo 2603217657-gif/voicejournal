@@ -4,7 +4,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'dist');
 fs.mkdirSync(output, { recursive: true });
-for (const file of ['index.html', 'styles.css', 'chat.js', 'support.js', 'wav.js', 'relax.html', 'relax.js', 'cat.js', 'cat-assets.js']) {
+for (const file of ['index.html', 'styles.css', 'chat.js', 'support.js', 'wav.js', 'relax.html', 'relax.js', 'cat.js', 'cat-assets.js', 'pet-editor.js', 'vendor/omggif.js', 'vendor/omggif-LICENSE.txt']) {
+  fs.mkdirSync(path.dirname(path.join(output, file)), { recursive: true });
   fs.copyFileSync(path.join(root, file), path.join(output, file));
 }
 for (const pet of require('../cat-assets.js')) {

@@ -376,3 +376,16 @@ textarea::placeholder { color: #a2aaa1; }
 .cat-switch:hover { background: #d5e3d6; }
 @media (max-width: 600px) { .cat-companion { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); } .yarn-toggle { width: 50px; height: 50px; } .yarn-toggle svg { width: 35px; } }
 @media (prefers-reduced-motion: reduce) { .yarn-toggle { transition: none; } }
+
+.pet-editor { width: min(520px, calc(100% - 24px)); max-height: 90svh; overflow-y: auto; border-radius: 20px; }
+.pet-editor h2 { font-family: var(--serif); padding-right: 28px; }
+.pet-upload { display: flex; align-items: center; gap: 12px; color: var(--green); font-size: 13px; margin: 16px 0; }
+.pet-upload input { min-width: 0; width: 100%; }
+#pet-preview { display: block; width: min(256px, 100%); height: auto; margin: 18px auto; border: 1px solid var(--line); border-radius: 12px; background: repeating-conic-gradient(#e7ece3 0% 25%,#f8faf5 0% 50%) 0 0/20px 20px; touch-action: none; cursor: move; }
+.pet-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+.pet-controls label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--green-deep); }
+.pet-controls input { min-width: 0; width: 100%; accent-color: var(--green); }
+.pet-editor .pet-tip, #pet-editor-status { font-size: 11px; line-height: 1.8; margin: 15px 0 0; }
+.pet-editor .modal-actions { flex-wrap: wrap; gap: 8px; }
+.cat-customize { font-size: 22px; }
+.cat-panel > .cat-switch { display: inline-grid; margin: 8px 15px 0; }
