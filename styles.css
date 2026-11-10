@@ -366,29 +366,13 @@ textarea::placeholder { color: #a2aaa1; }
 .yarn-toggle { position: relative; display: grid; place-items: center; width: 62px; height: 62px; padding: 9px; border: 1px solid #b8cbb9; border-radius: 50%; background: #e4eee6; color: var(--green); box-shadow: 0 6px 22px #173c3222; cursor: pointer; transition: transform .2s, background .2s; }
 .yarn-toggle:hover { transform: translateY(-3px) rotate(-8deg); background: #d6e5d9; }
 .yarn-toggle svg { width: 43px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.yarn-label { position: absolute; right: 72px; width: 66px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 20px; background: var(--white); font-size: 11px; opacity: 0; transition: opacity .2s; pointer-events: none; }
-.yarn-toggle:hover .yarn-label, .yarn-toggle:focus-visible .yarn-label { opacity: 1; }
-.cat-panel { position: relative; width: 230px; padding: 26px 10px 10px; border: 1px solid #d5dfd0; border-radius: 28px; background: linear-gradient(150deg,#fffef9f5,#eaf0e4f5); box-shadow: 0 12px 35px #173c3222; animation: cat-arrive .3s ease-out; }
-.cat-close { position: absolute; right: 5px; top: 3px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 23px; cursor: pointer; z-index: 2; }
-.cat-message { margin: 5px 0 0; min-height: 25px; text-align: center; color: var(--green-deep); font-size: 12px; }
-.cat-touch { --pet-x: 0px; position: relative; display: block; width: 100%; height: 190px; padding: 0; overflow: hidden; border: 0; border-radius: 18px; background: transparent; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-.cat-touch:active { cursor: grabbing; }
-.cat-picture { position: absolute; left: 50%; bottom: 8px; width: 160px; height: 165px; margin-left: -80px; overflow: hidden; transform-origin: 50% 100%; }
-.cat-picture img { position: absolute; width: 370px; max-width: none; height: auto; left: -110px; bottom: 0; pointer-events: none; }
-.cat-ground { position: absolute; left: 25px; right: 25px; bottom: 2px; height: 22px; border-radius: 50%; background: #b9cbb57a; filter: blur(5px); }
-.cat-hand { position: absolute; width: 78px; height: 65px; left: calc(50% - 12px); top: 9px; fill: #fffdf3; stroke: #536b58; stroke-width: 2.2; stroke-linejoin: round; opacity: 0; pointer-events: none; transform: translate(var(--pet-x),-15px) rotate(-16deg); }
-.cat-hint { margin: 8px 0 2px; text-align: center; font-size: 10px; color: var(--ink-soft); }
-.cat-hearts { position: absolute; inset: 0; pointer-events: none; }
-.cat-hearts i { position: absolute; top: 75px; left: 22px; color: #c78c7c; font-size: 23px; font-style: normal; opacity: 0; }
-.cat-hearts i:nth-child(2) { left: auto; right: 20px; top: 100px; animation-delay: .35s; }
-.cat-hearts i:nth-child(3) { left: 48px; top: 110px; animation-delay: .7s; font-size: 16px; }
-.is-petting .cat-picture { animation: cat-squish .55s ease-in-out infinite; }
-.is-petting .cat-hand { opacity: 1; animation: cat-stroke .55s ease-in-out infinite; }
-.is-petting .cat-hearts i { animation-name: cat-heart; animation-duration: 1.3s; animation-iteration-count: infinite; }
+ .cat-panel { position: relative; width: 182px; padding: 30px 18px 10px; border: 1px solid var(--line); border-radius: 24px; background: var(--paper); box-shadow: 0 10px 30px #173c3220; }
+.cat-close { position: absolute; right: 2px; top: 0; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 22px; cursor: pointer; }
+.cat-touch { display: grid; place-items: center; width: 144px; height: 144px; padding: 0; overflow: hidden; border: 0; border-radius: 12px; background: transparent; cursor: pointer; touch-action: manipulation; user-select: none; }
+.cat-frame { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.cat-switch { display: grid; place-items: center; width: 36px; height: 32px; margin: 8px auto 0; border: 1px solid #c9d7c9; border-radius: 12px; background: var(--green-pale); color: var(--green); cursor: pointer; }
+.cat-switch svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .cat-companion button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-@keyframes cat-arrive { from { opacity: 0; transform: translateY(14px) scale(.9); } to { opacity: 1; transform: none; } }
-@keyframes cat-squish { 0%,100% { transform: scale(1,1) rotate(-1deg); } 50% { transform: scale(1.07,.86) rotate(2deg); } }
-@keyframes cat-stroke { 0%,100% { transform: translate(calc(var(--pet-x) - 13px),0) rotate(-12deg); } 50% { transform: translate(calc(var(--pet-x) + 7px),18px) rotate(3deg); } }
-@keyframes cat-heart { 0% { opacity: 0; transform: translateY(5px) scale(.7); } 30% { opacity: .9; } 100% { opacity: 0; transform: translateY(-40px) scale(1.1); } }
-@media (max-width: 600px) { .cat-companion { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); } .yarn-toggle { width: 50px; height: 50px; } .yarn-toggle svg { width: 35px; } .cat-panel { width: 200px; } .cat-touch { height: 175px; } }
-@media (prefers-reduced-motion: reduce) { .cat-panel, .is-petting .cat-picture, .is-petting .cat-hand, .is-petting .cat-hearts i { animation: none; } .yarn-toggle { transition: none; } .is-petting .cat-hearts i { opacity: .8; } }
+.cat-switch:hover { background: #d5e3d6; }
+@media (max-width: 600px) { .cat-companion { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); } .yarn-toggle { width: 50px; height: 50px; } .yarn-toggle svg { width: 35px; } }
+@media (prefers-reduced-motion: reduce) { .yarn-toggle { transition: none; } }

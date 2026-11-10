@@ -13,7 +13,7 @@ const REQUEST_TIMEOUT_MS = 60_000;
 const execFileAsync = promisify(execFile);
 const ALLOWED_FILES = new Map([
   ["/cat.js", ["cat.js", "text/javascript; charset=utf-8"]],
-  ["/assets/cat.png", ["assets/cat.png", "image/png"]],
+  ["/cat-assets.js", ["cat-assets.js", "text/javascript; charset=utf-8"]],
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
   ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
@@ -24,6 +24,13 @@ const ALLOWED_FILES = new Map([
   ["/relax.html", ["relax.html", "text/html; charset=utf-8"]],
   ["/relax.js", ["relax.js", "text/javascript; charset=utf-8"]],
 ]);
+for (const pet of require('./cat-assets.js')) {
+  for (const file of pet.frames) {
+    if (!/^gif\/[a-zA-Z0-9_./-]+\.(jpg|jpeg|png|webp)$/.test(file) || file.split('/').includes('..')) throw new Error('Invalid pet frame path');
+    const ext = path.extname(file).slice(1);
+    ALLOWED_FILES.set('/' + file, [file, 'image/' + (ext === 'jpg' ? 'jpeg' : ext)]);
+  }
+}
 const requestCounts = new Map();
 
 function loadEnvFile() {
