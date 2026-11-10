@@ -352,7 +352,21 @@ function serveFile(urlPath, response) {
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, "http://localhost");
+  
+  // 👇 新增这几行：直接放行浏览器的 OPTIONS 预检请求
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, {
+      "Access-Control-Allow-Origin": "https://voicejournal-4k2.pages.dev",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400" // 缓存预检结果 24 小时
+    });
+    response.end();
+    return;
+  }
+
   if (request.method === "GET" && url.pathname === "/api/health") {
+  // ...
     jsonResponse(response, 200, {
       ok: true,
       chatConfigured: Boolean(apiKey && chatModel),
