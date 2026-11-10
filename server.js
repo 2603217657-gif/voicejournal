@@ -23,6 +23,7 @@ const ALLOWED_FILES = new Map([
   ["/chat.js", ["chat.js", "text/javascript; charset=utf-8"]],
   ["/config.js", ["config.js", "text/javascript; charset=utf-8"]],
   ["/support.js", ["support.js", "text/javascript; charset=utf-8"]],
+  ["/cues.js", ["cues.js", "text/javascript; charset=utf-8"]],
   ["/wav.js", ["wav.js", "text/javascript; charset=utf-8"]],
   ["/relax.html", ["relax.html", "text/html; charset=utf-8"]],
   ["/relax.js", ["relax.js", "text/javascript; charset=utf-8"]],

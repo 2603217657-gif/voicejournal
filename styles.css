@@ -393,3 +393,8 @@ textarea::placeholder { color: #a2aaa1; }
 .pet-cutout a:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .pet-cutout span { color: var(--ink-soft); font-size: 11px; line-height: 1.8; }
 .cat-panel > .cat-switch { display: inline-grid; margin: 8px 15px 0; }
+
+/* Audio file fallback for mobile browsers. */
+.pick-audio-button { min-height: 36px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--ink-soft); cursor: pointer; font-size: 12px; white-space: nowrap; }
+.pick-audio-button:hover { border-color: var(--green); color: var(--green); }
+.composer-left { flex-wrap: wrap; }

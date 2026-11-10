@@ -41,10 +41,10 @@ test("offline scripts parse and every local recommendation has a matching page s
   }
 });
 
-test("Pages uses static replies while the local server retains its API", () => {
+test("Pages and the local server use same-origin API routes", () => {
   for (const hostname of ['voicejournal-4k2.pages.dev', 'preview.voicejournal-4k2.pages.dev', '127.0.0.1']) {
     const browser = vm.createContext({window:{location:{protocol:'https:', hostname}}});
     vm.runInContext(read('config.js'), browser);
-    assert.equal(browser.window.TREEHOLE_CONFIG.chatEndpoint, hostname === '127.0.0.1' ? '/api/chat' : null);
+    assert.equal(browser.window.TREEHOLE_CONFIG.chatEndpoint, '/api/chat');
   }
 });

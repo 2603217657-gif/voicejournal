@@ -1,6 +1,6 @@
 // Cloudflare Pages Function：给静态站点补一个语音识别后端。
 // 放在仓库的 functions/api/ 下，Pages 会自动把这个路径变成 POST /api/transcribe。
-// 不需要 API key：用 Pages 项目的 Workers AI 绑定（变量名 AI），每天 10,000 Neurons 免费。
+// 使用 Pages 项目的 Workers AI 绑定（变量名 AI）；配额与费用以 Cloudflare 为准。
 // 如果你更想用 Groq 或阿里云百炼，加对应环境变量即可，代码会按下面的顺序挑。
 
 const MAX_AUDIO_BYTES = 12 * 1024 * 1024;

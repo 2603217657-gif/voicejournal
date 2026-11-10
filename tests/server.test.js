@@ -37,7 +37,7 @@ async function startServer(t, extraEnv = {}) {
 
 test("local demo serves resources and returns consistent recommendations", async (t) => {
   const server = await startServer(t);
-  for (const url of ["/", "/support.js", "/relax.html?activity=music", "/relax.js", "/styles.css"]) {
+  for (const url of ["/", "/support.js", "/cues.js", "/relax.html?activity=music", "/relax.js", "/styles.css"]) {
     assert.equal((await fetch(server.base + url)).status, 200, url);
   }
   const low = await server.chat("我今天不开心");

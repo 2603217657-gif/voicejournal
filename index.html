@@ -13,6 +13,7 @@
     <script src="config.js" defer></script>
     <script src="support.js" defer></script>
     <script src="wav.js" defer></script>
+    <script src="cues.js" defer></script>
     <script src="chat.js" defer></script>
     <script src="cat-assets.js" defer></script>
     <script src="cat.js" defer></script>
@@ -76,6 +77,8 @@
                     <svg class="mic-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5" /><path d="M7 16a9 9 0 0 0 18 0M16 25v4m-5 0h10" /></svg>
                     <span class="record-stop-icon" aria-hidden="true"></span><span id="record-label">语音输入</span>
                   </button>
+                  <button class="pick-audio-button" id="pick-audio-button" type="button" hidden>用录音文件</button>
+                  <input id="pick-audio-input" type="file" accept="audio/*,.wav,.mp3,.m4a,.webm,.ogg" hidden />
                   <span class="duration" id="timer">00:00 <span>/ 02:00</span></span>
                   <span class="char-count" id="char-count">0 / 1200</span>
                 </div>
@@ -120,8 +123,8 @@
       <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
       <p class="eyebrow small-eyebrow">录音前请先了解</p>
       <h2 id="consent-title">关于你的语音与隐私</h2>
-      <p>录音会保存在当前浏览器，供你在本机回听和删除。文字转写在你自己的电脑上完成，音频不会上传到任何服务器。</p>
-      <p class="consent-demo-note">语音由本机的 SenseVoice 模型（sherpa-onnx）转成文字，一段 10 秒的话大约 2 秒出结果；音频只在本机的浏览器与本地服务之间传递。只有你主动配置第三方对话服务后，转写出的文字才会被转发给该服务商。</p>
+      <p id="consent-audio-line">录音用于语音转文字；部署在云端时，音频会交给配置的语音服务处理。</p>
+      <p class="consent-demo-note" id="consent-audio-note">转写结果可以编辑，点击发送后，对话文字及近期上下文会交给配置的 AI 服务商生成回复。</p>
       <label class="consent-check"><input id="consent-checkbox" type="checkbox" /><span>我已了解语音数据的处理方式，同意开始录音。</span></label>
       <div class="modal-actions"><button class="secondary-button" id="consent-cancel" type="button">暂不录音</button><button class="primary-button" id="consent-confirm" type="button" disabled>同意并开始</button></div>
     </dialog>
@@ -152,7 +155,7 @@
       <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
       <p class="eyebrow small-eyebrow">YOUR VOICE, YOUR CHOICE</p>
       <h2 id="privacy-title">隐私与安全</h2>
-      <p>离线版使用规则回复，云端版会将发送的对话及近期上下文交给配置的 AI 服务商生成回复。录音由本机 SenseVoice 模型（sherpa-onnx）转写，音频不上传；若退回浏览器识别，语音可能由浏览器服务商处理。只有主动配置第三方对话服务后，对话文字才会被转发。</p>
+      <p id="privacy-audio-line">会话历史保存在当前浏览器。使用云端语音识别时会上传音频；发送对话时会将文字交给配置的 AI 服务商处理。</p>
       <p class="consent-demo-note">会话历史仍保存在当前浏览器，没有云端账号存储或跨设备同步。配置第三方服务前，请确认其数据处理政策；不要在开发演示中输入真实隐私或紧急求助信息。</p>
       <button class="primary-button full-button" id="privacy-close" type="button">知道了</button>
     </dialog>

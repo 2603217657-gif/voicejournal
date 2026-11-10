@@ -3,7 +3,7 @@ const SERVICE_CONFIG = window.TREEHOLE_CONFIG || {};
 const SESSIONS_KEY = "treehole-demo-sessions-v1";
 const ACTIVE_SESSION_KEY = "treehole-demo-active-session-v1";
 const USER_KEY = "treehole-demo-user-v1";
-const CONSENT_KEY = "treehole-demo-consent-v1";
+const CONSENT_KEY = `treehole-audio-consent-v2-${SERVICE_CONFIG.asrMode || "none"}`;
 const LISTENING_MODE_KEY = "treehole-demo-listening-mode-v1";
 const SUPPORT_POPUP_KEY = "treehole-support-auto-popup-v1";
 const supportPopupTimes = new Map();
@@ -19,6 +19,8 @@ const AUDIO_DB_NAME = "treehole-demo-audio";
 const AUDIO_STORE = "recordings";
 
 const elements = {
+  pickAudioButton: document.querySelector("#pick-audio-button"),
+  pickAudioInput: document.querySelector("#pick-audio-input"),
   recordButton: document.querySelector("#record-button"),
   recordLabel: document.querySelector("#record-label"),
   timer: document.querySelector("#timer"),
@@ -73,11 +75,34 @@ let transcriptionConfigured = false;
 let browserRecognition = null;
 let browserTranscript = "";
 
-if (SERVICE_CONFIG.healthEndpoint) {
-  fetch(SERVICE_CONFIG.healthEndpoint).then((response) => response.json()).then((health) => {
-    transcriptionConfigured = Boolean(health.transcriptionConfigured);
-  }).catch(() => {});
+let consentAction = "record";
+let transcriptionPending = false;
+let ASR_LABEL = SERVICE_CONFIG.asrMode === "cloud" ? "云端识别" : "本地模型";
+function updateAudioPrivacy() {
+  const mode = SERVICE_CONFIG.asrMode;
+  const audio = mode === "cloud"
+    ? "语音转写会将录音上传到配置的云端语音服务。数据处理与保留方式以服务商政策为准。"
+    : mode === "local"
+      ? "录音会发送到运行本站的电脑，由本地 SenseVoice 模型转写；手机访问时也由那台电脑处理。"
+      : "当前未配置语音转写服务。若使用浏览器自带识别，语音可能由浏览器服务商处理。";
+  document.querySelector("#consent-audio-line").textContent = audio;
+  document.querySelector("#privacy-audio-line").textContent = audio + " 发送对话后，文字及近期上下文会交给配置的 AI 服务商；离线模式使用规则回复。会话历史保存在当前浏览器。";
 }
+updateAudioPrivacy();
+elements.pickAudioButton.hidden = !SERVICE_CONFIG.transcriptionEndpoint;
+const backendReady = SERVICE_CONFIG.healthEndpoint
+  ? fetch(SERVICE_CONFIG.healthEndpoint, { signal: AbortSignal.timeout(8000) }).then((response) => {
+      if (!response.ok) throw new Error("服务状态检查失败");
+      return response.json();
+    }).then((health) => {
+      transcriptionConfigured = Boolean(health.transcriptionConfigured);
+      if (transcriptionConfigured) {
+        SERVICE_CONFIG.asrMode = health.transcriptionEngine === "sensevoice" ? "local" : "cloud";
+        ASR_LABEL = SERVICE_CONFIG.asrMode === "cloud" ? "云端识别" : "本地模型";
+        updateAudioPrivacy();
+      }
+    }).catch(() => {})
+  : Promise.resolve();
 
 function readSessions() {
   try {
@@ -357,14 +382,14 @@ function chooseReply(message, mode = "warm") {
 async function getApiError(response, fallback) {
   try {
     const result = await response.json();
-    return result.error?.message || fallback;
+    return (typeof result.error === "string" ? result.error : result.error?.message) || fallback;
   } catch {
     return fallback;
   }
 }
 
 // SenseVoice 只认 16 kHz WAV，而浏览器录音是 WebM，所以先在本机解码 + 重采样再上传。
-// 这样做还有个好处：上传体积从几 MB 降到每秒 32 KB，录音不出本机就能转文字。
+// 统一为单声道 16 kHz WAV，兼容本地模型和云端转写接口。
 const EMOTION_HINTS = {
   SAD: "声音偏低落",
   HAPPY: "声音偏轻快",
@@ -386,6 +411,7 @@ async function toWav16k(blob) {
   const context = new Context();
   try {
     const audioBuffer = await context.decodeAudioData(await blob.arrayBuffer());
+    if (audioBuffer.duration > MAX_RECORDING_SECONDS + 1) throw new Error("录音请控制在 2 分钟以内。");
     const frames = Math.max(1, Math.ceil(audioBuffer.duration * 16000));
     const offline = new OfflineAudioContext(1, frames, 16000);
     const source = offline.createBufferSource();
@@ -393,19 +419,39 @@ async function toWav16k(blob) {
     source.connect(offline.destination);
     source.start();
     const rendered = await offline.startRendering();
-    return encodeWav16(rendered.getChannelData(0), 16000);
+    const samples = rendered.getChannelData(0);
+    // 返回采样数据，供浏览器补充声音特征分析。
+    return { blob: encodeWav16(samples, 16000), samples };
   } finally {
     context.close?.();
   }
 }
 
+// 把服务端和浏览器端两套线索统一成界面用的形状。
+function summarizeCues(cues) {
+  if (!cues) return null;
+  const cry = cues.cry && typeof cues.cry === "object" ? cues.cry : { detected: Boolean(cues.cry) };
+  const sigh = cues.sigh && typeof cues.sigh === "object" ? cues.sigh : { detected: Boolean(cues.sigh) };
+  const reasons = [cry.reason, sigh.reason].filter(Boolean).slice(0, 2);
+  return {
+    cry: Boolean(cry.detected),
+    sigh: Boolean(sigh.detected),
+    cryScore: typeof cues.cryScore === "number" ? cues.cryScore : cry.score ?? null,
+    sighScore: typeof cues.sighScore === "number" ? cues.sighScore : sigh.score ?? null,
+    reasons,
+  };
+}
+
 async function transcribeAudio(blob) {
   if (!SERVICE_CONFIG.transcriptionEndpoint) throw new Error("语音识别服务尚未配置");
   let wav;
+  let samples = null;
   try {
-    wav = await toWav16k(blob);
-  } catch {
-    throw new Error("本机无法解码这段录音，请手动输入内容。");
+    const converted = await toWav16k(blob);
+    wav = converted.blob;
+    samples = converted.samples;
+  } catch (error) {
+    throw new Error(error.message.includes("2 分钟") ? error.message : "本机无法解码这段录音，请换用 WAV、MP3 或手动输入内容。");
   }
   const response = await fetch(SERVICE_CONFIG.transcriptionEndpoint, {
     method: "POST",
@@ -414,8 +460,18 @@ async function transcribeAudio(blob) {
   });
   if (!response.ok) throw new Error(await getApiError(response, "语音识别请求失败"));
   const result = await response.json();
-  if (typeof result.text !== "string" || !result.text.trim()) throw new Error("语音识别没有返回文本");
-  return { text: result.text.trim(), emotion: result.emotion || "", event: result.event || "" };
+  const text = typeof result.text === "string" ? result.text.trim() : "";
+  // 本地服务会带 voiceCues；云端只回文字和情感，所以这两类线索在浏览器里补算。
+  let voiceCues = summarizeCues(result.voiceCues);
+  if (!voiceCues && samples && window.TreeholeCues) {
+    voiceCues = summarizeCues(window.TreeholeCues.analyze(samples));
+  }
+  return {
+    text,
+    emotion: typeof result.emotion === "string" ? result.emotion.toUpperCase() : "",
+    event: result.event || "",
+    voiceCues,
+  };
 }
 
 function describeVoice(emotion, event, cues) {
@@ -426,6 +482,48 @@ function describeVoice(emotion, event, cues) {
   if (event === "Laughter") parts.push("听到笑声");
   if (EMOTION_HINTS[emotion]) parts.push(EMOTION_HINTS[emotion]);
   return parts.join(" · ");
+}
+
+// 录音和"选一段已有录音文件"走的是同一条转写与回填流程，避免两处判断渐渐跑偏。
+function applyTranscribed(result) {
+  const hint = describeVoice(result.emotion, result.event, result.voiceCues);
+  if (!result.text) {
+    // 只听到了一声叹气 / 哭腔，没有字：不当作失败，也不清空输入框。
+    elements.transcriptionStatus.textContent = `没有听清说话内容${hint ? `，但${hint}` : ""}。可以直接打字，或再说一遍。`;
+    elements.transcriptionStatus.hidden = false;
+    elements.userMessage.focus();
+    return;
+  }
+  elements.userMessage.value = result.text;
+  updateComposer();
+  pendingVoiceHint = hint;
+  elements.transcriptionStatus.textContent = hint
+    ? `语音已转成文字（${ASR_LABEL} · ${hint}），请检查或编辑后发送。`
+    : `语音已转成文字（${ASR_LABEL}），请检查或编辑后发送。`;
+  elements.userMessage.focus();
+}
+
+function transcribeBlob(blob) {
+  if (transcriptionPending) return;
+  transcriptionPending = true;
+  pendingVoiceHint = null;
+  elements.recordButton.disabled = true;
+  elements.pickAudioButton.disabled = true;
+  updateComposer();
+  elements.transcriptionStatus.textContent = "正在识别语音……";
+  elements.transcriptionStatus.hidden = false;
+  void transcribeAudio(blob)
+    .then(applyTranscribed)
+    .catch((error) => {
+      elements.transcriptionStatus.textContent = `${error.message || "语音识别暂不可用。"} 录音仍暂存在本页；请手动输入你说的话后发送。`;
+      elements.transcriptionStatus.hidden = false;
+      elements.userMessage.focus();
+    }).finally(() => {
+      transcriptionPending = false;
+      elements.recordButton.disabled = false;
+      elements.pickAudioButton.disabled = false;
+      updateComposer();
+    });
 }
 
 async function requestAssistantReply(messages, mode) {
@@ -448,7 +546,7 @@ async function requestAssistantReply(messages, mode) {
 function updateComposer() {
   const length = elements.userMessage.value.length;
   elements.charCount.textContent = `${length} / 1200`;
-  elements.sendButton.disabled = replyPending || !elements.userMessage.value.trim();
+  elements.sendButton.disabled = transcriptionPending || replyPending || !elements.userMessage.value.trim();
 }
 
 function speak(text) {
@@ -671,28 +769,7 @@ function beginRecording() {
         elements.transcriptionStatus.hidden = false;
         return;
       }
-      elements.transcriptionStatus.textContent = "正在识别语音……";
-      elements.transcriptionStatus.hidden = false;
-      void transcribeAudio(pendingAudioBlob).then((result) => {
-        const hint = describeVoice(result.emotion, result.event, result.voiceCues);
-        if (!result.text) {
-          // 只听到了一声叹气 / 哭腔，没有字：不当作失败，也不清空输入框。
-          elements.transcriptionStatus.textContent = `没有听清说话内容${hint ? `，但${hint}` : ""}。可以直接打字，或再说一遍。`;
-          elements.transcriptionStatus.hidden = false;
-          elements.userMessage.focus();
-          return;
-        }
-        elements.userMessage.value = result.text;
-        updateComposer();
-        pendingVoiceHint = hint;
-        elements.transcriptionStatus.textContent = hint
-          ? `语音已转成文字（本地模型 · ${hint}），请检查或编辑后发送。`
-          : "语音已转成文字（本地模型），请检查或编辑后发送。";
-        elements.userMessage.focus();
-      }).catch((error) => {
-        elements.transcriptionStatus.textContent = `${error.message || "语音识别暂不可用。"} 录音仍暂存在本页；请手动输入你说的话后发送。`;
-        elements.userMessage.focus();
-      });
+      transcribeBlob(pendingAudioBlob);
     }, { once: true });
     mediaRecorder.start();
     recordingStartedAt = Date.now();
@@ -728,11 +805,13 @@ function stopRecording() {
   elements.timer.innerHTML = "00:00 <span>/ 02:00</span>";
 }
 
-elements.recordButton.addEventListener("click", () => {
+elements.recordButton.addEventListener("click", async () => {
   if (mediaRecorder?.state === "recording") {
     stopRecording();
     return;
   }
+  await backendReady;
+  consentAction = "record";
   if (localStorage.getItem(CONSENT_KEY) !== "accepted-v1") {
     elements.consentCheckbox.checked = false;
     elements.consentConfirm.disabled = true;
@@ -742,6 +821,29 @@ elements.recordButton.addEventListener("click", () => {
   beginRecording();
 });
 
+elements.pickAudioButton.addEventListener("click", () => {
+  if (transcriptionPending || mediaRecorder?.state === "recording") return;
+  consentAction = "file";
+  if (localStorage.getItem(CONSENT_KEY) !== "accepted-v1") {
+    elements.consentCheckbox.checked = false;
+    elements.consentConfirm.disabled = true;
+    elements.consentDialog.showModal();
+    return;
+  }
+  elements.pickAudioInput.click();
+});
+elements.pickAudioInput.addEventListener("change", () => {
+  const file = elements.pickAudioInput.files?.[0];
+  elements.pickAudioInput.value = "";
+  if (!file || transcriptionPending || mediaRecorder?.state === "recording") return;
+  if (file.size > 24 * 1024 * 1024) {
+    showToast("录音文件过大，请选择 2 分钟以内、24 MB 以下的音频。");
+    return;
+  }
+  pendingAudioBlob = file;
+  transcribeBlob(file);
+});
+
 elements.consentCheckbox.addEventListener("change", () => {
   elements.consentConfirm.disabled = !elements.consentCheckbox.checked;
 });
@@ -749,7 +851,8 @@ elements.consentConfirm.addEventListener("click", () => {
   if (!elements.consentCheckbox.checked) return;
   localStorage.setItem(CONSENT_KEY, "accepted-v1");
   elements.consentDialog.close();
-  beginRecording();
+  if (consentAction === "file") elements.pickAudioInput.click();
+  else beginRecording();
 });
 elements.consentCancel.addEventListener("click", () => elements.consentDialog.close());
 

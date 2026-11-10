@@ -13,7 +13,24 @@
 
 目前没有真实密钥调用验证。后端正常时返回 demo:false；配置缺失、密钥错误、余额不足会返回明确错误，不会悄悄伪装成真实模型回复。
 
-本地运行仍使用 server.js 和 .env。Cloudflare 不运行本机 Python/SenseVoice；云端语音暂依赖浏览器支持。云端对话会发送给模型服务商，网页已有对应说明。
+本地运行仍使用 server.js 和 .env。Cloudflare 不运行本机 Python/SenseVoice；云端语音通过 Pages Functions 调用 Workers AI，浏览器负责将录音转为 WAV。云端音频与对话文字会分别交给配置的服务商处理。
+
+## 本次语音功能合并的上传位置
+
+从 `C:/Users/Qi/Desktop/ai-treehole/` 上传到上述 GitHub 仓库，保持相对路径：
+
+- 根目录：`index.html`、`chat.js`、`styles.css`、`config.js`、`cues.js`、`server.js`、`DEPLOY.md`。
+- `scripts/`：`build-pages.js`。
+- `functions/api/`：新增 `transcribe.js`、`health.js`。保留原有 `chat.js`。
+- `tests/`：`pages-function.test.js`、`cues.test.js`、`voice-ui.test.js`、`offline.test.js`、`server.test.js`（测试文件不参与页面发布，建议同步保存到仓库）。
+
+不要覆盖或删除现有猫猫、封存相关文件；保留 `scripts/pages-chat.mjs` 和原有 AI 对话配置。无需上传 `dist`，Cloudflare 会自行构建。
+
+在 Cloudflare 的 Workers & Pages 中打开对应 Pages 项目，进入 Settings → Bindings → Add，选择 Workers AI，变量名填写 `AI`，保存并重新部署。若需要预览部署也能转写，预览环境同样需要绑定。
+
+构建设置保持：Framework None；Build command `npm run build`；Build output directory `dist`；Root directory 留空（项目在仓库根目录时）。
+
+部署后访问 `/api/health`，应返回 `transcriptionConfigured: true`、`transcriptionEngine: "workers-ai"`。这仅代表配置存在，随后用手机 HTTPS 访问网页、允许麦克风权限，录一段中文确认真实转写；也可用“用录音文件”选择两分钟以内的音频。Whisper 只转写文字，浏览器补充的声音特征提示不等同于 SenseVoice 的情绪标签。
 
 API 密钥不能放在网页代码或 GitHub 中。公开站点上线后应根据使用范围添加访问控制与服务商用量限制；当前接口没有用户鉴权或分布式限流。
 
