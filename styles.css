@@ -388,4 +388,8 @@ textarea::placeholder { color: #a2aaa1; }
 .pet-editor .pet-tip, #pet-editor-status { font-size: 11px; line-height: 1.8; margin: 15px 0 0; }
 .pet-editor .modal-actions { flex-wrap: wrap; gap: 8px; }
 .cat-customize { font-size: 22px; }
+.pet-cutout { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--green-pale); }
+.pet-cutout a { flex-shrink: 0; padding: 5px 0; color: var(--green); font-size: 12px; font-weight: 600; text-underline-offset: 3px; }
+.pet-cutout a:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.pet-cutout span { color: var(--ink-soft); font-size: 11px; line-height: 1.8; }
 .cat-panel > .cat-switch { display: inline-grid; margin: 8px 15px 0; }

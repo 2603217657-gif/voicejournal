@@ -11,6 +11,7 @@
  <label>上下<input id="pet-y" type="range" min="-100" max="100" value="0"></label>
  <label>弹性<input id="pet-squish" type="range" min="5" max="40" value="24"></label>
  </div><p class="pet-tip">建议使用透明背景 PNG；普通图片会连同背景一起变形。拖动预览也能调整位置。</p>
+ <div class="pet-cutout"><a href="https://www.bg-zero.online/zh/auto" target="_blank" rel="noopener noreferrer" aria-label="去抠图，在新标签页打开外部网站">去抠图 ↗</a><span>下载透明背景 PNG 后，回来重新选择图片。本页不会自动向外部网站发送图片。</span></div>
  <p id="pet-editor-status" role="status"></p>
  <div class="modal-actions"><button id="pet-play" class="secondary-button" disabled>预览一次</button><button id="pet-download" class="secondary-button" disabled>下载 GIF</button><button id="pet-save" class="primary-button" disabled>设为我的猫猫</button></div>`;
  document.body.append(modal);
