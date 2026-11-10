@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f4ef" />
+    <meta name="description" content="一个可以用声音安放情绪的中文语音树洞。" />
+    <title>树洞 · 把心事说给这里听</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js" defer></script>
+    <script src="support.js" defer></script>
+    <script src="wav.js" defer></script>
+    <script src="chat.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#home" aria-label="树洞首页">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>树洞 <small>VOICE JOURNAL</small></span>
+        </a>
+        <div class="top-actions">
+          <button class="quiet-button" id="history-open" type="button" aria-label="打开历史记录">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8m0-5v5h5m4-1v5l3 2" /></svg>
+            <span>历史</span>
+          </button>
+          <button class="profile-button" id="profile-open" type="button" aria-label="登录账号">
+            <span class="profile-dot"></span><span id="profile-label">登录</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="main-layout" id="home">
+        <section class="conversation-column" aria-labelledby="page-title">
+          <div class="intro-block">
+            <p class="eyebrow"><span class="eyebrow-line"></span>给此刻的自己一点空间</p>
+            <h1 id="page-title">把心事，<br /><em>说给这里听。</em></h1>
+            <p class="intro-copy">不用想好怎么说。疲惫、快乐，或者只是想叹口气，都可以从这里开始。</p>
+          </div>
+
+          <section class="conversation-panel" aria-label="当前对话">
+            <div class="conversation-toolbar">
+              <div><p class="eyebrow small-eyebrow">CURRENT CONVERSATION</p><h2 id="conversation-title">新的对话</h2><span id="conversation-updated" class="conversation-updated">内容会连续保留在这里</span></div>
+              <button class="new-conversation-button" id="seal-open" type="button">封存心事</button>
+              <button class="new-conversation-button" id="new-conversation" type="button"><span aria-hidden="true">＋</span> 新对话</button>
+            </div>
+            <div class="listening-mode-panel">
+              <label for="listening-mode">选择树洞的倾听方式</label>
+              <select id="listening-mode" aria-describedby="listening-mode-help">
+                <option value="quiet">安静倾听 · 简短回应</option>
+                <option value="warm">温和共情 · 复述感受</option>
+                <option value="observer">旁观者视角 · 中性梳理</option>
+                <option value="gentle">轻轻提问 · 开放式问题</option>
+                <option value="no-advice">禁止开导 · 只陪伴</option>
+              </select>
+              <p id="listening-mode-help" role="status">先听见你的感受，不急着给建议。</p>
+            </div>
+            <div class="thread-view" id="thread-view" aria-live="polite" aria-label="消息记录">
+              <div class="empty-conversation" id="empty-conversation"><span class="empty-mark" aria-hidden="true">回</span><p>从一段语音或文字开始</p><small>发送后，你和树洞的每一句都会留在当前对话里。</small></div>
+              <div class="message-list" id="message-list"></div>
+            </div>
+            <p class="transcription-status" id="transcription-status" role="status" hidden></p>
+            <form class="message-composer" id="message-form">
+              <label class="sr-only" for="user-message">输入消息或语音转写结果</label>
+              <textarea id="user-message" rows="2" maxlength="1200" placeholder="写下你想说的话……"></textarea>
+              <div class="composer-tools">
+                <div class="composer-left">
+                  <button class="record-button" id="record-button" type="button" aria-label="开始录音">
+                    <svg class="mic-icon" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5" /><path d="M7 16a9 9 0 0 0 18 0M16 25v4m-5 0h10" /></svg>
+                    <span class="record-stop-icon" aria-hidden="true"></span><span id="record-label">语音输入</span>
+                  </button>
+                  <span class="duration" id="timer">00:00 <span>/ 02:00</span></span>
+                  <span class="char-count" id="char-count">0 / 1200</span>
+                </div>
+                <div class="composer-right">
+                  <div class="reply-options" role="group" aria-label="AI 回复形式">
+                    <button class="reply-option is-selected" type="button" data-mode="text" aria-pressed="true">文字</button>
+                    <button class="reply-option" type="button" data-mode="voice" aria-pressed="false">语音</button>
+                  </div>
+                  <button class="send-button" id="send-button" type="submit" disabled><span>发送</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-5-5 5 5-5 5" /></svg></button>
+                </div>
+              </div>
+            </form>
+            <p class="composer-note"><span class="live-dot"></span><span>录音上限 2 分钟 · 浏览器支持时可语音转写 · 发送前可编辑</span><button id="privacy-open" type="button">隐私说明</button></p>
+            <p class="transcription-status" id="reply-status" role="status" hidden></p>
+          </section>
+
+          <p class="bottom-note">一个安静的角落，不评判，也不催促。<span>·</span> 你的情绪值得被认真对待。</p>
+        </section>
+
+        <aside class="memory-column" aria-label="树洞陪伴说明">
+          <div class="forest-image">
+            <div class="forest-overlay"></div>
+            <div class="forest-copy">
+              <span class="image-kicker">A QUIET PLACE TO LAND</span>
+              <p>你不必<br />一个人消化<br />所有感受。</p>
+              <span class="image-caption">给心情一点回声</span>
+            </div>
+            <span class="image-credit">PHOTO · UNSPLASH</span>
+          </div>
+          <div class="memory-note">
+            <span class="note-mark" aria-hidden="true">“</span>
+            <p>有时，被听见本身就是一种很好的开始。</p>
+            <button class="text-link" id="memory-history-open" type="button">回到我的历史 <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="demo-notice"><span class="notice-icon" aria-hidden="true">i</span><p>文字回复当前为规则演示。语音转写由本机 SenseVoice 模型完成，音频不离开这台电脑；演示登录与历史仅保存在本机。</p></div>
+        </aside>
+      </main>
+      <footer class="site-footer"><span>树洞 · 一处留给情绪的空间</span><button type="button" id="footer-privacy">隐私与安全</button></footer>
+    </div>
+
+    <dialog class="modal" id="consent-dialog" aria-labelledby="consent-title">
+      <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
+      <p class="eyebrow small-eyebrow">录音前请先了解</p>
+      <h2 id="consent-title">关于你的语音与隐私</h2>
+      <p>录音会保存在当前浏览器，供你在本机回听和删除。文字转写在你自己的电脑上完成，音频不会上传到任何服务器。</p>
+      <p class="consent-demo-note">语音由本机的 SenseVoice 模型（sherpa-onnx）转成文字，一段 10 秒的话大约 2 秒出结果；音频只在本机的浏览器与本地服务之间传递。只有你主动配置第三方对话服务后，转写出的文字才会被转发给该服务商。</p>
+      <label class="consent-check"><input id="consent-checkbox" type="checkbox" /><span>我已了解语音数据的处理方式，同意开始录音。</span></label>
+      <div class="modal-actions"><button class="secondary-button" id="consent-cancel" type="button">暂不录音</button><button class="primary-button" id="consent-confirm" type="button" disabled>同意并开始</button></div>
+    </dialog>
+
+    <dialog class="modal login-modal" id="login-dialog" aria-labelledby="login-title">
+      <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
+      <p class="eyebrow small-eyebrow">WELCOME BACK</p>
+      <h2 id="login-title">登录你的树洞</h2>
+      <p>当前为本机演示登录，不会发送真实验证码；历史记录不会跨设备同步。</p>
+      <form id="login-form">
+        <label for="phone-input">手机号</label>
+        <input id="phone-input" type="tel" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入中国大陆手机号" required />
+        <div class="code-row"><label class="sr-only" for="code-input">验证码</label><input id="code-input" inputmode="numeric" maxlength="6" placeholder="验证码" required /><span>演示码：246810</span></div>
+        <p class="form-error" id="login-error" role="alert"></p>
+        <button class="primary-button full-button" type="submit">登录 / 注册</button>
+      </form>
+      <p class="modal-footnote">继续即表示你已阅读并同意隐私政策与用户协议。</p>
+    </dialog>
+
+    <dialog class="modal history-modal" id="history-dialog" aria-labelledby="history-title">
+      <div class="history-header"><div><p class="eyebrow small-eyebrow">YOUR VOICE JOURNAL</p><h2 id="history-title">我的树洞</h2></div><button class="icon-close history-close" id="history-close" aria-label="关闭">×</button></div>
+      <div class="history-toolbar"><span id="history-count">0 个对话</span><button class="text-link danger-link" id="delete-all" type="button" hidden>清空历史</button></div>
+      <div class="history-list" id="history-list"></div>
+      <p class="history-local-note">选择对话可继续交流。原型模式：消息与录音保存在当前浏览器本机，尚未云端同步。</p>
+    </dialog>
+
+    <dialog class="modal privacy-modal" id="privacy-dialog" aria-labelledby="privacy-title">
+      <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭">×</button></form>
+      <p class="eyebrow small-eyebrow">YOUR VOICE, YOUR CHOICE</p>
+      <h2 id="privacy-title">隐私与安全</h2>
+      <p>文字回复目前由本机规则生成。录音由本机 SenseVoice 模型（sherpa-onnx）转写，音频不上传；若退回浏览器识别，语音可能由浏览器服务商处理。只有主动配置第三方对话服务后，对话文字才会被转发。</p>
+      <p class="consent-demo-note">会话历史仍保存在当前浏览器，没有云端账号存储或跨设备同步。配置第三方服务前，请确认其数据处理政策；不要在开发演示中输入真实隐私或紧急求助信息。</p>
+      <button class="primary-button full-button" id="privacy-close" type="button">知道了</button>
+    </dialog>
+
+    <dialog class="modal support-modal" id="support-dialog" aria-labelledby="support-title" aria-describedby="support-description">
+      <form method="dialog" class="modal-close-form"><button class="icon-close" aria-label="关闭帮助卡片">×</button></form>
+      <p class="eyebrow small-eyebrow">ONE SMALL STEP, AT YOUR PACE</p>
+      <h2 id="support-title" tabindex="-1">先照顾一下此刻的你</h2>
+      <p id="support-description">听起来你现在不太好受。不必马上解决所有事情，如果愿意，可以从一个小练习开始。</p>
+      <div id="support-cards" class="support-cards"></div>
+      <p class="support-note">练习页面可离线打开；由你点击后才开始，不会自动跳转或播放。日常放松不能替代专业诊疗。</p>
+      <label class="support-preference"><input type="checkbox" id="support-auto-popup" checked> 情绪低落时，自动显示帮助卡片</label>
+      <form method="dialog"><button class="secondary-button full-button" type="submit">先聊一会儿</button></form>
+    </dialog>
+    <dialog class="modal seal-modal" id="seal-dialog" aria-labelledby="seal-title">
+      <p class="eyebrow small-eyebrow">LET IT REST HERE</p>
+      <div class="seal-scene" aria-hidden="true"><div class="seal-halo"></div><div class="seal-envelope"><div class="seal-paper"><span></span><span></span><span></span></div><div class="seal-pocket"></div><div class="seal-flap"></div><div class="seal-stamp">安</div></div></div>
+      <h2 id="seal-title">让这段心事，在这里休息。</h2>
+      <p id="seal-description" role="status">封存当前整段对话后，历史中只留下封存日期，不再提供查看或继续入口。</p>
+      <p class="seal-note">原文和录音仍保存在此浏览器，未加密、未删除；可在历史中删除。尚未发送的内容请先发送或清空。</p>
+      <div class="modal-actions"><button class="secondary-button" id="seal-cancel" type="button">再待一会儿</button><button class="primary-button" id="seal-confirm" type="button">确认封存</button><button class="primary-button" id="seal-done" type="button" hidden>开启新的一页</button></div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

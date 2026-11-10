@@ -1,0 +1,16 @@
+{
+  "name": "ai-treehole",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI 情绪语音树洞网页原型与本地 API 服务",
+  "scripts": {
+    "build": "node scripts/build-pages.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js",
+    "check:asr": "node scripts/check-asr.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>给自己一点缓冲 · 树洞</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="relax.js" defer></script>
+</head>
+<body class="relax-page">
+  <main class="relax-shell">
+    <a class="relax-back" href="index.html">← 回到树洞</a>
+    <p class="eyebrow small-eyebrow">A LITTLE ROOM TO BREATHE</p>
+    <h1>给自己一点缓冲</h1>
+    <p class="relax-intro">不用马上变好。选一个此刻愿意做的小练习，就足够了。</p>
+    <nav class="relax-nav" aria-label="选择放松练习">
+      <a href="?activity=music" data-activity="music">音乐放松</a>
+      <a href="?activity=breathing" data-activity="breathing">缓慢呼吸</a>
+      <a href="?activity=grounding" data-activity="grounding">感官练习</a>
+      <a href="?activity=sleep" data-activity="sleep">睡前放松</a>
+    </nav>
+    <section class="relax-card" id="music" hidden aria-labelledby="music-title">
+      <span class="relax-tag">3 分钟 · 本地合成音景</span>
+      <h2 id="music-title">听一会儿，什么也不用做</h2>
+      <p>找一个舒服的位置，把音量调低，让轻柔的和声留在背景里。这里是简单的合成舒缓音，不是真人演奏，也不是专业音乐治疗。</p>
+      <div class="sound-art" aria-hidden="true">♫</div>
+      <label class="volume-label" for="volume">音量 <input id="volume" type="range" min="0" max="0.3" step="0.01" value="0.12"></label>
+      <button id="music-toggle" class="primary-button" type="button">播放舒缓音</button>
+      <p id="music-status" role="status">不会自动播放，随时可以停止。</p>
+      <div class="relax-external">
+        <p>更喜欢真实的音乐？也可以自行挑选轻音乐。</p>
+        <a href="https://music.163.com/#/search/m/?s=%E8%88%92%E7%BC%93%E8%BD%BB%E9%9F%B3%E4%B9%90&amp;type=1" target="_blank" rel="noopener noreferrer">在网易云音乐搜索舒缓轻音乐 ↗</a>
+        <small>外部网站 · 需联网，可能需要登录；只打开固定搜索词，不携带你的对话。</small>
+      </div>
+    </section>
+    <section class="relax-card" id="breathing" hidden aria-labelledby="breathing-title">
+      <span class="relax-tag">1 分钟 · 无需憋气</span>
+      <h2 id="breathing-title">慢一点，跟着自己的呼吸</h2>
+      <p>轻轻吸气约 4 秒，缓缓呼气约 6 秒。节奏只是参考，不必刻意深呼吸或勉强跟上。</p>
+      <div class="breath-orbit" id="breath-orbit"><span id="breath-phase">准备好了再开始</span></div>
+      <button id="breath-toggle" class="primary-button" type="button">开始 1 分钟练习</button>
+      <p id="breath-status" role="status">共 6 个呼吸循环。感到头晕或不舒服时，请停止并恢复自然呼吸。</p>
+    </section>
+    <section class="relax-card" id="grounding" hidden aria-labelledby="grounding-title">
+      <span class="relax-tag">约 2 分钟 · 按自己的节奏</span>
+      <h2 id="grounding-title">此刻，你在这里</h2>
+      <p>双脚轻轻落地，慢慢留意下面的事物。不方便做的部分可以直接跳过。</p>
+      <ol class="practice-list">
+        <li><strong>5 样看见的东西</strong><span>看看周围，默念它们的名字，比如桌子、窗户、树叶。</span></li>
+        <li><strong>4 种触摸的感觉</strong><span>衣袖、椅面、杯壁、脚下的地面，感受它们的温度和纹理。</span></li>
+        <li><strong>3 种听到的声音</strong><span>留意远处或身边的声音，不需要判断好坏。</span></li>
+        <li><strong>2 种闻到的气味</strong><span>空气、茶香；闻不到也没有关系，可以想起熟悉的气味。</span></li>
+        <li><strong>1 种口中的味道</strong><span>觉察口中的味道，或者在方便时喝一小口水。</span></li>
+      </ol>
+      <p class="practice-finish">做完后，看看肩膀能不能放松一点。你不需要立刻解决所有事情。</p>
+    </section>
+    <section class="relax-card" id="sleep" hidden aria-labelledby="sleep-title">
+      <span class="relax-tag">约 3 分钟 · 不强迫自己入睡</span>
+      <h2 id="sleep-title">今晚，先让身体休息一下</h2>
+      <p>按顺序试一试，也可以只做其中一件。</p>
+      <div class="sleep-checklist">
+        <label><input type="checkbox"> 调暗灯光，把手机通知设为静音。</label>
+        <label><input type="checkbox"> 松开下颌和肩膀，找一个舒服的姿势。</label>
+        <label><input type="checkbox"> 记下一件担心的事，告诉自己：明天再处理。</label>
+        <label><input type="checkbox"> 暂时放下“必须马上睡着”的要求，让身体歇一会儿。</label>
+      </div>
+      <a class="resource-link" href="?activity=music">想听一点舒缓音 →</a>
+      <p class="practice-finish">如果睡眠困难持续影响日常生活，可以联系医生或心理专业人员。</p>
+    </section>
+    <p class="relax-footnote">这些是可自由选择的日常放松练习，效果因人而异。任何时候觉得不适，都可以停下来。</p>
+  </main>
+</body>
+</html>
