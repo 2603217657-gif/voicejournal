@@ -75,6 +75,10 @@ function jsonResponse(response, status, payload) {
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
+    // 👇 新增下面这三行，允许你的网页跨域请求
+    "Access-Control-Allow-Origin": "https://voicejournal-4k2.pages.dev", 
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   });
   response.end(JSON.stringify(payload));
 }
