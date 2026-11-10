@@ -108,3 +108,9 @@ python -m venv .venv
 ## Cloudflare 云端 AI 对话
 
 Git 部署版已加入 functions/api/chat.js，构建时生成 /api/chat 配置。请按 DEPLOY.md 在 Cloudflare 设置 DeepSeek 密钥、基础地址和模型 ID，再重新部署。此路径仅接入文字对话；本机 SenseVoice 不会部署到 Pages。之前的静态上传演示包仍为规则回复，不能用于部署 Functions。当前以模拟模型接口验证，尚未用真实密钥进行线上验证。
+
+## 猫猫陪伴
+
+主页面和放松页右下角加入毛线球入口。点击展开用户提供的猫咪图片，点击或按住拖动可触发小手抚摸与猫咪压低回弹动画；点击右上角 × 或按 Esc 收起。支持键盘与减少动态效果偏好，不使用麦克风、不发送聊天数据、不播放声音。
+
+猫咪资源为 assets/cat.png，互动脚本为 cat.js。本地服务白名单和 Cloudflare 构建脚本均已包含这两个文件。上传 GitHub 时需同时上传 assets 文件夹。动画参考提供的视频，用静态素材的形变和小手动画实现，并非原视频逐帧复刻。

@@ -12,6 +12,8 @@ const MAX_JSON_BYTES = 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 60_000;
 const execFileAsync = promisify(execFile);
 const ALLOWED_FILES = new Map([
+  ["/cat.js", ["cat.js", "text/javascript; charset=utf-8"]],
+  ["/assets/cat.png", ["assets/cat.png", "image/png"]],
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
   ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],

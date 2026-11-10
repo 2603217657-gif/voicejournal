@@ -4,8 +4,10 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'dist');
 fs.mkdirSync(output, { recursive: true });
-for (const file of ['index.html', 'styles.css', 'chat.js', 'support.js', 'wav.js', 'relax.html', 'relax.js']) {
+for (const file of ['index.html', 'styles.css', 'chat.js', 'support.js', 'wav.js', 'relax.html', 'relax.js', 'cat.js']) {
   fs.copyFileSync(path.join(root, file), path.join(output, file));
 }
+fs.mkdirSync(path.join(output, 'assets'), { recursive: true });
+fs.copyFileSync(path.join(root, 'assets/cat.png'), path.join(output, 'assets/cat.png'));
 fs.writeFileSync(path.join(output, 'config.js'), 'window.TREEHOLE_CONFIG = { transcriptionEndpoint: null, chatEndpoint: "/api/chat", healthEndpoint: null };\n');
 console.log('Pages static demo built in dist/');
